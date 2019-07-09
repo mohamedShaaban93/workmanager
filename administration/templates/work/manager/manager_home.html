@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<a class="btn btn-success text-center form-control h3" href="{%url 'signup' %}" xmlns="http://www.w3.org/1999/html"> Add New Employee</a>
+    <hr>
+<a class="btn btn-dark text-center form-control h3" href="{%url 'manager:reports' %}" xmlns="http://www.w3.org/1999/html"> Reports</a>
+     <hr>
+    <div class= "form form-control ">
+            <h3 class="col-12 text-center">
+                Manage Work Hours
+            </h3>
+        <form class="form text-center" action="{% url 'manager:work_hour' %}" method="post">
+            {% csrf_token %}
+            <div class="form-control">
+                <label for="exampleFormControlSelect2"> Select Date</label>
+                <input type="date" id="exampleFormControlSelect2" class="form-control" name="date">
+            </div>
+            <hr>
+             <div class="form-group">
+                <label for="exampleFormControlSelect1"> select Shift</label>
+                <select class="form-control" id="exampleFormControlSelect1" name="shift">
+                  <option value="1" >Morring</option>
+                  <option value="2" >AfterNoon</option>
+                  <option value="3" >Evenning</option>
+                </select>
+              </div>
+            <input type="submit" class=" form-control text-center btn btn-primary" value="Go"></input>
+        </form>
+    </div>
+     <hr>
+    {% if month_type == 0 %}
+    <div class="form form-control text-center">
+            <form action="" method="post">
+                {% csrf_token %}
+                <input class="btn btn-info h3 form-control" type="submit" value="Show Next Month">
+            </form>
+    </div>
+    {% else %}
+    <div class="form form-control text-center">
+            <form action="" method="get">
+                {% csrf_token %}
+                <input class="btn btn-info h3 form-control" type="submit" value="Back To prevois Month">
+            </form>
+    </div>
+    {% endif%}
+     <hr>
+
+  <table class="table table-hover table-bordered">
+        <tr class="text-center">
+            <th class="table-warning">Day</th>
+            {% for employee in employees %}
+                <th class="table-info">
+                    {{employee}}
+                </th>
+            {% endfor %}
+        </tr>
+
+      {% for ele in data %}
+      <tr class="text-center">
+          <td class=" text-center ">
+              <h5>{{ele.day|date:"D"}} : {{ele.day}}</h5>
+          </td>
+          {% load mytags %}
+          {% for type in ele.day_types %}
+          {% if type.type == 1%}
+            <td class="bg-warning" >
+                <select class="btn btn-warning custom">
+          {% elif type.type == 2 %}
+            <td class="  bg-info">
+                    <select class="btn btn-info custom">
+          {% elif type.type == 3 %}
+          <td class="  bg-danger">
+                    <select class="btn btn-danger custom">
+          {% elif type.type == 4 %}
+            <td class="  bg-success">
+                        <select class="btn btn-success custom">
+          {% elif type.type == 5 %}
+            <td class="  bg-primary">
+                    <select class="btn btn-primary custom">
+          {% elif type.type ==  6%}
+            <td class=" bg-secondary">
+                    <select class="btn btn-secondary custom">
+          {% endif %}
+                <option value="1-{{type.pk}}" {% if type.type == 1 %}selected{% endif%}>M</option>
+                <option value="2-{{type.pk}}" {% if type.type == 2 %}selected{% endif%}>A</option>
+                <option value="3-{{type.pk}}" {% if type.type == 3 %}selected{% endif%}>N</option>
+                <option value="4-{{type.pk}}" {% if type.type == 4 %}selected{% endif%}>ON Call</option>
+                <option value="5-{{type.pk}}" {% if type.type == 5 %}selected{% endif%}>Sleep</option>
+                <option value="6-{{type.pk}}" {% if type.type == 6 %}selected{% endif%}>OFF Day</option>
+            </select>
+
+            </td>
+          {% endfor %}
+
+      </tr>
+      {% endfor %}
+  </table>
+    <script type="text/javascript">
+            let table = document.getElementsByTagName("table")[0],
+            ajax = new XMLHttpRequest();
+
+            table.onclick = function (event) {
+            if (event.target.tagName == "SELECT") {
+                console.log(event.target.value)
+                num=event.target.value.split('-')
+                ajax.open("GET", "http://localhost:8000/manager/changestatus/" + num[0] +"/"+num[1]);
+                ajax.setRequestHeader("Access-Control-Allow-Origin", "*");
+                ajax.send();
+                ajax.onreadystatechange = () => {
+                        if (ajax.readyState === 4 && ajax.status === 200) {
+                        response = JSON.parse(ajax.responseText);
+                        console.log(response);
+                        if (response.success) {
+                            if(num[0] == '1'){
+                                event.target.classList= "btn btn-warning";
+                                event.target.parentElement.classList = 'bg-warning'
+                            }else if(num[0] == '2'){
+                                event.target.classList= "btn btn-info";
+                                event.target.parentElement.classList = 'bg-info'
+                            }else if(num[0] == '3'){
+                                event.target.classList="btn btn-danger";
+                                event.target.parentElement.classList = 'bg-danger'
+                            }else if(num[0] == '4'){
+                                event.target.classList= "btn btn-success";
+                                event.target.parentElement.classList = 'bg-success'
+                            }else if(num[0] == '5' ){
+                                event.target.classList = "btn btn-primary";
+                                event.target.parentElement.classList = 'bg-primary'
+                            }else{
+                                event.target.classList = "btn btn-secondary";
+                                event.target.parentElement.classList = 'bg-secondary'
+                            }
+
+                        } else {
+                            flash.innerHTML = "<p class='alert alert-danger'>" + data.msg + "</p>";
+
+                        }
+                    }
+                   }
+                }
+            }
+
+
+    </script>
+{% endblock %}

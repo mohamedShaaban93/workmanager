@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script>
+
+window.onload = function () {
+        data=[]
+        {% for ele in data %}
+        data.push({ x: 10*{{ forloop.counter }}, y: {{ele.hour_number}}, indexLabel: "{{ele.employee }}" })
+        {% endfor %}
+var chart = new CanvasJS.Chart("chartContainer", {
+	animationEnabled: true,
+	exportEnabled: true,
+	theme: "light1", // "light1", "light2", "dark1", "dark2"
+	title:{
+		text: "Working hours Chart"
+	},
+	data: [{
+		type: "column", //change type to bar, line, area, pie, etc
+		//indexLabel: "{y}", //Shows y value on all Data Points
+		indexLabelFontColor: "#5A5757",
+		indexLabelPlacement: "outside",
+		dataPoints: data
+	}]
+});
+chart.render();
+document.getElementsByClassName("canvasjs-chart-credit")[0].remove()
+
+}
+</script>
+<div id="chartContainer" style="height: 370px; width: 100%;"></div>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+
+
+       <div class= "form form-control ">
+            <h3 class="col-12 text-center">
+                Show Spacfic Report
+            </h3>
+        <form class="form text-center" action="{% url 'manager:show_report' %}" method="post">
+            {% csrf_token %}
+            <div class="form-control">
+                <label for="exampleFormControlSelect2"> Select Date</label>
+                <input type="date" id="exampleFormControlSelect2" class="form-control" name="date">
+            </div>
+            <hr>
+             <div class="form-group ">
+                <label for="exampleFormControlSelect1"> select Employee</label>
+                <select class="form-control" id="exampleFormControlSelect1" name="employee">
+                    {% for emp in employees %}
+                  <option class="text-center" value={{emp.pk}} >{{emp}}</option>
+                    {% endfor %}
+                </select>
+              </div>
+            <input type="submit" class=" form-control text-center btn btn-primary" value="Show"></input>
+        </form>
+    </div>
+    <hr>
+    <a class="btn btn-primary text-center form-control h3" href="{%url 'manager:home' %}" xmlns="http://www.w3.org/1999/html"> Back To Home</a>
+
+{% endblock %}
